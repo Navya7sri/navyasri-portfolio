@@ -1,167 +1,28 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import emailjs from '@emailjs/browser';
+import { profile, experiences, projects, skillGroups, certifications } from '../data/portfolio';
+import SectionHeading from '../components/SectionHeading';
+import Reveal from '../components/Reveal';
+import ProjectCard from '../components/ProjectCard';
+import { ArrowDown, ArrowDownRight, ArrowUpRight, Github, Linkedin, Mail, MapPin, Code2, Database, Cpu, Layers3, Award, GraduationCap, Send, Check, ExternalLink, FileText, Sparkles } from '../components/Icons';
 
-function ContactForm() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+function HeroVisual(){return <motion.div className="hero-visual" initial={{opacity:0,scale:.96}} animate={{opacity:1,scale:1}} transition={{duration:.9,delay:.2}}><div className="hero-visual-grid"/><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="hero-core"><div className="core-glow"/><span className="core-initial">N<span>.</span></span><span className="core-caption">ENGINEERING<br/>WITH INTENTION</span></div><div className="float-chip chip-java"><span className="chip-symbol">J</span><span><b>Java</b><small>Backend</small></span></div><div className="float-chip chip-python"><span className="chip-symbol python-symbol">Py</span><span><b>Python</b><small>AI / ML</small></span></div><div className="float-chip chip-data"><Database size={17}/><span><b>Data</b><small>Systems</small></span></div><div className="float-chip chip-api"><Code2 size={17}/><span><b>APIs</b><small>Full stack</small></span></div><div className="visual-coordinate">16°30' N<br/>80°38' E</div><div className="visual-index">FIG. 01 — A SYSTEMS THINKER</div></motion.div>}
+function ContactForm(){const [form,setForm]=useState({name:'',email:'',subject:'',message:''});const [status,setStatus]=useState<'idle'|'sending'|'success'|'error'>('idle');const [error,setError]=useState('');
+ const update=(e:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>setForm({...form,[e.target.name]:e.target.value});
+ const submit=async(e:React.FormEvent)=>{e.preventDefault();setError('');if(!Object.values(form).every(v=>v.trim())){setError('Please complete every field.');setStatus('error');return;}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)){setError('Please enter a valid email address.');setStatus('error');return;}const service=import.meta.env.VITE_EMAILJS_SERVICE_ID,template=import.meta.env.VITE_EMAILJS_TEMPLATE_ID,key=import.meta.env.VITE_EMAILJS_PUBLIC_KEY;if(!service||!template||!key){const body=`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`;window.location.href=`mailto:${profile.email}?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(body)}`;return;}try{setStatus('sending');await emailjs.send(service,template,{from_name:form.name,reply_to:form.email,subject:form.subject,message:form.message},key);setStatus('success');setForm({name:'',email:'',subject:'',message:''});}catch{setStatus('error');setError('Something went wrong. Please email me directly instead.');}};
+ return <form className="contact-form" onSubmit={submit} noValidate><div className="form-grid"><label>Your name<input name="name" value={form.name} onChange={update} placeholder="Jane Smith" autoComplete="name" required/></label><label>Email address<input name="email" type="email" value={form.email} onChange={update} placeholder="jane@example.com" autoComplete="email" required/></label></div><label>Subject<input name="subject" value={form.subject} onChange={update} placeholder="A quick hello" required/></label><label>Message<textarea name="message" value={form.message} onChange={update} rows={5} placeholder="Tell me a little about what you have in mind…" required/></label><div className="form-submit-row"><button className="button button-primary" type="submit" disabled={status==='sending'}>{status==='sending'?'Sending…':status==='success'?<>Message sent <Check size={16}/></>:<>Send message <Send size={15}/></>}</button><span className="form-note">I’ll get back to you as soon as I can.</span></div>{status==='success'&&<p className="form-success">Thank you — your message has been sent.</p>}{status==='error'&&<p className="form-error">{error}</p>}</form>}
 
-  const [status, setStatus] = useState<
-    'idle' | 'sending' | 'success' | 'error'
-  >('idle');
-
-  const [error, setError] = useState('');
-
-  const update = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-
-    if (!Object.values(form).every((v) => v.trim())) {
-      setError('Please complete every field.');
-      setStatus('error');
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address.');
-      setStatus('error');
-      return;
-    }
-
-    const service = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const template = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const key = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    if (!service || !template || !key) {
-      const body = `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`;
-
-      window.location.href =
-        `mailto:${profile.email}?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(body)}`;
-
-      return;
-    }
-
-    try {
-      setStatus('sending');
-
-      await emailjs.send(
-        service,
-        template,
-        {
-          from_name: form.name,
-          reply_to: form.email,
-          subject: form.subject,
-          message: form.message,
-        },
-        key
-      );
-
-      setStatus('success');
-
-      setForm({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-      });
-    } catch {
-      setStatus('error');
-      setError(
-        'Something went wrong. Please email me directly instead.'
-      );
-    }
-  };
-
-  return (
-    <form
-      className="contact-form"
-      onSubmit={submit}
-      noValidate
-    >
-      <div className="form-grid">
-        <label>
-          Your name
-          <input
-            name="name"
-            value={form.name}
-            onChange={update}
-            placeholder="Jane Smith"
-            autoComplete="name"
-            required
-          />
-        </label>
-
-        <label>
-          Email address
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={update}
-            placeholder="jane@example.com"
-            autoComplete="email"
-            required
-          />
-        </label>
-      </div>
-
-      <label>
-        Subject
-        <input
-          name="subject"
-          value={form.subject}
-          onChange={update}
-          placeholder="A quick hello"
-          required
-        />
-      </label>
-
-      <label>
-        Message
-        <textarea
-          name="message"
-          value={form.message}
-          onChange={update}
-          rows={5}
-          placeholder="Tell me a little about what you have in mind…"
-          required
-        />
-      </label>
-
-      <div className="form-submit-row">
-        <button
-          className="button button-primary"
-          type="submit"
-          disabled={status === 'sending'}
-        >
-          {status === 'sending'
-            ? 'Sending…'
-            : status === 'success'
-              ? <>Message sent <Check size={16} /></>
-              : <>Send message <Send size={15} /></>}
-        </button>
-
-        <span className="form-note">
-          I'll get back to you as soon as I can.
-        </span>
-      </div>
-
-      {status === 'success' && (
-        <p className="form-success">
-          Thank you — your message has been sent.
-        </p>
-      )}
-
-      {status === 'error' && (
-        <p className="form-error">{error}</p>
-      )}
-    </form>
-  );
+export default function Home(){const [expanded,setExpanded]=useState<number|null>(0);
+ return <main>
+  <section className="hero section-wrap" id="home"><div className="hero-copy"><Reveal><div className="eyebrow hero-eyebrow"><span className="status-dot"/> HELLO, I'M NAVYASRI</div><h1>Building technology.<br/><em>Creating meaningful</em><br/>impact<span className="accent-dot">.</span></h1><p className="hero-role">Software Engineer <i/> Full Stack Developer <i/> AI &amp; Data Science Enthusiast</p><p className="hero-description">I'm a Software Engineer passionate about building scalable backend systems, full-stack applications, and AI-driven solutions. I enjoy transforming ideas into meaningful digital experiences through clean code and thoughtful engineering.</p><div className="hero-buttons"><a href="#projects" className="button button-primary">Explore my projects <ArrowUpRight size={16}/></a><a href="#contact" className="button button-secondary">Let's connect <ArrowDownRight size={16}/></a></div><div className="social-links"><a href={profile.github} target="_blank" rel="noreferrer"><Github size={16}/> GitHub</a><a href={profile.linkedin} target="_blank" rel="noreferrer"><Linkedin size={16}/> LinkedIn</a><a href={`mailto:${profile.email}`}><Mail size={16}/> Email</a></div></Reveal></div><HeroVisual/><a className="scroll-cue" href="#about"><span>SCROLL TO EXPLORE</span><ArrowDown size={14}/></a><div className="hero-side-note">SOFTWARE ENGINEERING · AI · PRODUCT THINKING</div></section>
+  <section className="about-section section-wrap section-pad" id="about"><SectionHeading eyebrow="A LITTLE ABOUT ME" title={<>Curiosity in thought.<br/><em>Clarity in execution.</em></>} note="A thoughtful approach to building useful, reliable technology."/><div className="about-grid"><Reveal className="about-photo-wrap"><div className="about-photo"><img src="/assets/profile.jpg" alt="Navyasri Vallakati" className="profile-image" /><div className="photo-caption">VALLAKATI NAVYASRI <span>— 2025</span></div></div><div className="about-stamp"><Sparkles size={16}/><span>Always learning.<br/>Always building.</span></div></Reveal><Reveal className="about-copy" delay={.1}><p className="lead-copy">I'm a Software Engineer with a strong foundation in Artificial Intelligence and Data Science, passionate about building scalable software solutions and intelligent applications.</p><p>My experience spans Java backend development, REST APIs, database integration, AI model evaluation, and full-stack application development.</p><p>I enjoy solving challenging problems, exploring emerging technologies, collaborating with teams, and continuously improving my engineering skills.</p><div className="interest-line"><span>AREAS OF INTEREST</span><b>Backend systems</b><b>Applied AI</b><b>Product engineering</b></div></Reveal></div><div className="stats-row"><div><b>9.05</b><span>CGPA / 10</span></div><div><b>03</b><span>Professional experiences</span></div><div><b>03</b><span>Featured projects</span></div><div><b>01</b><span>IEEE publication</span></div></div></section>
+  <section className="experience-section section-pad" id="experience"><div className="section-wrap"><SectionHeading eyebrow="THE JOURNEY SO FAR" title={<>Experience that <em>shapes.</em></>} note="Learning through real products, thoughtful collaboration, and meaningful challenges."/><div className="experience-list">{experiences.map((job,i)=><Reveal key={job.company} delay={i*.08}><article className={`experience-item ${expanded===i?'expanded':''}`}><div className="experience-marker"><span>{String(i+1).padStart(2,'0')}</span><i/></div><div className="experience-content"><button className="experience-toggle" onClick={()=>setExpanded(expanded===i?null:i)} aria-expanded={expanded===i}><div><div className="experience-company">{job.company} {job.current&&<span className="current-badge">CURRENT</span>}</div><h3>{job.role}</h3><div className="experience-location"><MapPin size={13}/>{job.location}{job.client&&<span>· Client: {job.client}</span>}</div></div><div className="experience-right"><span>{job.date}</span><span className="expand-icon">{expanded===i?'−':'+'}</span></div></button>{expanded===i&&<div className="experience-details"><ul>{job.points.map(p=><li key={p}>{p}</li>)}</ul><div className="tag-row">{job.skills.map(s=><span className="tag" key={s}>{s}</span>)}</div></div>}</div></article></Reveal>)}</div></div></section>
+  <section className="projects-section section-wrap section-pad" id="projects"><SectionHeading eyebrow="SELECTED WORK" title={<>Ideas, translated into <em>impact.</em></>} note="A selection of projects exploring intelligent systems, accessible commerce, and practical digital tools."/><div className="projects-grid">{projects.map((p,i)=><ProjectCard project={p} index={i} key={p.slug}/>)}</div><div className="projects-footnote"><span>THOUGHTFUL BY DESIGN. BUILT TO BE USEFUL.</span><a href={profile.github} target="_blank" rel="noreferrer">More on GitHub <ArrowUpRight size={14}/></a></div></section>
+  <section className="skills-section section-pad" id="skills"><div className="section-wrap"><SectionHeading eyebrow="MY TOOLKIT" title={<>Technologies I <em>work with.</em></>} note="A practical toolkit across software engineering, data, and intelligent applications."/><div className="skills-layout"><div className="skills-intro"><div className="skills-icon-grid"><div><Code2/><span>CODE</span></div><div><Database/><span>DATA</span></div><div><Cpu/><span>INTELLIGENCE</span></div><div><Layers3/><span>SYSTEMS</span></div></div><p>I value choosing the right tool for the problem — and staying curious about what comes next.</p></div><div className="skill-groups">{skillGroups.map((group,i)=><Reveal className="skill-group" delay={i*.04} key={group.name}><div className="skill-group-head"><span>{String(i+1).padStart(2,'0')}</span><h3>{group.name}</h3></div><div className="skill-pills">{group.items.map(item=><span key={item}>{item}</span>)}</div></Reveal>)}</div></div></div></section>
+  <section className="education-section section-wrap section-pad" id="education"><SectionHeading eyebrow="EDUCATION & CREDENTIALS" title={<>Grounded in <em>learning.</em></>}/><div className="education-grid"><Reveal className="education-card"><div className="education-card-top"><GraduationCap size={21}/><span>2021 — 2025</span></div><span className="eyebrow">BACHELOR OF TECHNOLOGY</span><h3>Artificial Intelligence<br/>&amp; Data Science</h3><p className="school-name">Velagapudi Ramakrishna Siddhartha Engineering College</p><div className="education-bottom"><span><MapPin size={13}/> Vijayawada, India</span><b>9.05 <small>/ 10 CGPA</small></b></div></Reveal><Reveal className="coursework-card" delay={.08}><span className="eyebrow">RELEVANT COURSEWORK</span><div className="coursework-list">{['Object-Oriented Programming','Data Structures & Algorithms','Database Management Systems','Operating Systems','Software Engineering','Computer Networks','Artificial Intelligence','Agile Project Management','Cloud Computing','Internet of Things'].map((c,i)=><span key={c}><i>{String(i+1).padStart(2,'0')}</i>{c}</span>)}</div></Reveal></div><div className="certifications-block"><div className="cert-heading"><div><span className="eyebrow">CONTINUOUS LEARNING</span><h3>Certifications</h3></div><span className="cert-count">03 CREDENTIALS</span></div><div className="cert-grid">{certifications.map((c,i)=><Reveal className="cert-card" delay={i*.06} key={c.name}><div className="cert-icon"><Award size={19}/></div><span className="cert-issuer">{c.issuer}</span><h4>{c.name}</h4><div className="cert-bottom"><span>{c.date}</span><a href={c.url} target="_blank" rel="noreferrer">View certificate <ArrowUpRight size={13}/></a></div></Reveal>)}</div></div></section>
+  <section className="publication-section"><div className="section-wrap publication-inner"><Reveal><div className="publication-label"><span className="eyebrow">RESEARCH & PUBLICATION</span><span className="publication-mark">IEEE <span>↗</span></span></div><div className="publication-content"><div><span className="publication-type">CONFERENCE PAPER · ISML 2024</span><h2>Crafting Connections: Empowering Kondapalli Artisans through a Mobile Application</h2><p>Published in the proceedings of the Intelligent Systems and Machine Learning Conference (ISML) 2024, IEEE Xplore.</p><a className="button button-light" href="https://doi.org/10.1109/ISML60050.2024.11007403" target="_blank" rel="noreferrer">Read publication <ArrowUpRight size={15}/></a></div><div className="publication-side"><span>DOI</span><b>10.1109/ISML60050.2024.11007403</b><span>PUBLICATION</span><b>IEEE Xplore</b><span>CONFERENCE</span><b>ISML 2024</b></div></div></Reveal></div></section>
+  <section className="contact-section section-wrap section-pad" id="contact"><SectionHeading eyebrow="OPEN TO GOOD CONVERSATIONS" title={<>Let's make something <em>meaningful.</em></>} note="Interested in collaborating, discussing technology, or exploring new opportunities? I'd love to connect."/><div className="contact-grid"><Reveal className="contact-details"><h3>Have a project in mind,<br/>or just want to say hello?</h3><a className="contact-email" href={`mailto:${profile.email}`}>{profile.email} <ArrowUpRight size={17}/></a><div className="contact-socials"><a href={profile.linkedin} target="_blank" rel="noreferrer"><Linkedin size={17}/> LinkedIn <ArrowUpRight size={13}/></a><a href={profile.github} target="_blank" rel="noreferrer"><Github size={17}/> GitHub <ArrowUpRight size={13}/></a></div><div className="contact-location"><MapPin size={15}/> Based in India · Open to opportunities</div></Reveal><Reveal className="contact-form-wrap" delay={.1}><ContactForm/></Reveal></div></section>
+  <footer className="site-footer"><div className="section-wrap footer-inner"><a href="#home" className="footer-wordmark">Navyasri<span>.</span></a><span>Building with purpose. Learning without limits.</span><span>© {new Date().getFullYear()} VALLAKATI NAVYASRI</span><a href="#home" className="back-top">BACK TO TOP ↑</a></div></footer>
+ </main>
 }
