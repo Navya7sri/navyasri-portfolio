@@ -1,16 +1,13 @@
-
 import type { ReactNode } from 'react';
 import Reveal from './Reveal';
 
-export default function SectionHeading({
-  eyebrow,
-  title,
-  note
-}: {
+interface SectionHeadingProps {
   eyebrow: string;
   title: ReactNode;
   note?: string;
-}) {
+}
+
+export default function SectionHeading({ eyebrow, title, note }: SectionHeadingProps) {
   return (
     <Reveal className="section-heading">
       <span className="eyebrow">{eyebrow}</span>
